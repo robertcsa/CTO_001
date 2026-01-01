@@ -26,57 +26,115 @@ Egy teljes körű, kódalapú Trading Bot rendszer FastAPI backend-del és React
 
 ## 📋 Követelmények
 
-- Python 3.11+
-- PostgreSQL 13+
-- Redis 6+
-- Node.js 18+ (frontend-hez)
+- **Python 3.11+** (3.12 recommended)
+- **PostgreSQL 13+**
+- **Redis 6+**
+- **Node.js 18+** (frontend-hez)
+
+> **Windows特别注意 (Windows Note)**: A telepítéshez használd a `setup.bat` vagy `setup.ps1` scriptet a gyorsabb beállításhoz!
 
 ## 🛠️ Telepítés és Futtatás
 
-### Backend Setup
+### Windows Telepítés (Ajánlott)
+
+```powershell
+# PowerShell-ben (rendszergazdaként, ha szükséges):
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+
+# Setup script futtatása:
+.\setup.ps1
+```
+
+Vagy CMD-ben:
+```cmd
+setup.bat
+```
+
+### Linux/macOS Telepítés
 
 1. **Környezeti változók beállítása:**
-```bash
-cp .env.template .env
-# Szerkeszd a .env fájlt a saját beállításokkal
-```
+   ```bash
+   cp .env.template .env
+   # Szerkeszd a .env fájlt a saját beállításokkal
+   ```
 
 2. **Python függőségek telepítése:**
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 3. **Adatbázis inicializálása:**
-```bash
-python init_db.py init
-```
+   ```bash
+   python init_db.py init
+   ```
 
 4. **Backend indítása:**
+   ```bash
+   uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+### Adatbázis Telepítés (Ha nincs PostgreSQL)
+
+**Windows:**
+```powershell
+# PostgreSQL letöltése és telepítése
+# https://www.postgresql.org/download/windows/
+
+# Vagy Docker használata:
+docker run --name trading-postgres -e POSTGRES_PASSWORD=your_password -p 5432:5432 -d postgres:15
+```
+
+**Docker Compose (opcionális):**
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: tradingbot
+      POSTGRES_PASSWORD: your_secure_password
+      POSTGRES_DB: tradingbot_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+```
+
+Futtatás:
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+docker-compose up -d
 ```
 
 ### Frontend Setup
 
 1. **Frontend könyvtár:**
-```bash
-cd frontend
-```
+   ```bash
+   cd frontend
+   ```
 
 2. **NPM függőségek telepítése:**
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
 3. **Környezeti változók:**
-```bash
-echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
-```
+   ```bash
+   echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
+   ```
 
 4. **Frontend indítása:**
-```bash
-npm run dev
-```
+   ```bash
+   npm run dev
+   ```
 
 ## 📁 Projekt Struktúra
 
@@ -85,7 +143,11 @@ npm run dev
 ├── main.py                 # FastAPI app
 ├── init_db.py             # DB inicializálás
 ├── requirements.txt       # Python függőségek
+├── requirements-dev.txt   # Dev függőségek
+├── pyproject.toml         # Python projekt konfiguráció
 ├── .env.template         # Környezeti változók template
+├── setup.bat             # Windows CMD setup script
+├── setup.ps1             # Windows PowerShell setup script
 ├── core/                 # Alapvető konfigurációk
 │   ├── config.py         # Settings
 │   ├── db.py            # SQLAlchemy setup
@@ -207,8 +269,14 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 # Backend tesztek
 pytest tests/
 
-# Frontend tesztek
-cd frontend && npm test
+# Fejlesztői csomagok telepítése
+pip install -r requirements-dev.txt
+
+# Kód formázás
+black .
+
+# Típus ellenőrzés
+mypy .
 ```
 
 ## 🚀 Produkció
